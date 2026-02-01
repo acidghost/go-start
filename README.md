@@ -2,7 +2,8 @@
 
 A starter template for Go projects with batteries included.
 
-> **Disclaimer**: This template is tailored for my own needs.
+> [!note]
+> This template is tailored for my own needs.
 > Issues and PRs might not be taken into consideration.
 
 ## Features
