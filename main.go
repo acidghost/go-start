@@ -6,8 +6,8 @@ import (
 
 var (
 	buildVersion string
-	buildCommit string
-	buildDate string
+	buildCommit  string
+	buildDate    string
 )
 
 func main() {
