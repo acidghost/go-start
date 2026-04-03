@@ -7,7 +7,7 @@
   "packageRules": [
     {
       "matchUpdateTypes": ["patch", "minor"],
-      "labels": ["lcm/approve"]
+      "addLabels": ["lcm/approve"]
     }
   ]
 }
