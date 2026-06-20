@@ -4,6 +4,10 @@ version := 'SNAPSHOT-'+`git describe --tags --always --dirty 2>/dev/null || prin
 commit_sha := `(git rev-parse HEAD 2>/dev/null || printf 'unknown') | tr -d '\n'`
 build_time := `date -u '+%Y-%m-%d_%H:%M:%S'`
 
+container_engine := 'docker'
+container_registry := 'ghcr.io'
+container_image := container_registry + '/acidghost/' + program
+
 ldflags := '-s -w -X main.buildVersion='+version \
         +' -X main.buildCommit='+commit_sha \
         +' -X main.buildDate='+build_time
@@ -15,6 +19,13 @@ alias b := build
 alias r := run
 
 build-all: (build 'darwin' 'arm64') (build 'linux' 'arm64') (build 'linux' 'amd64')
+
+build-image platform=goarch:
+    {{container_engine}} build \
+        --platform 'linux/{{platform}}' \
+        --build-arg BUILD_VERSION='{{version}}' \
+        --build-arg BUILD_COMMIT='{{commit_sha}}' \
+        -t '{{container_image}}' .
 
 build os=goos arch=goarch: build-dir
     CGO_ENABLED=0 GOOS={{os}} GOARCH={{arch}} \
