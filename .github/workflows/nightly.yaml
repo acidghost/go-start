@@ -50,6 +50,11 @@ jobs:
     needs: check-changes
     if: needs.check-changes.outputs.has-changes == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      attestations: write # needed to persist artifact attestations
+      artifact-metadata: write # needed to create artifact metadata records
+      contents: read
+      id-token: write # needed to mint the OIDC token for signing attestations
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -76,11 +81,23 @@ jobs:
             tar -cvzf "${binary}.tar.gz" "$binary"
           done
 
+      - name: Generate checksums
+        run: |
+          cd build
+          sha256sum *.tar.gz > SHA256SUMS
+
+      - name: Attest release artifacts
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-checksums: build/SHA256SUMS
+
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: binaries
-          path: build/*.tar.gz
+          path: |
+            build/*.tar.gz
+            build/SHA256SUMS
 
   release:
     needs: [check-changes, build]
@@ -123,7 +140,8 @@ jobs:
 
           gh release create "$TAG" \
             --title "$TITLE" \
-            --notes "Automated nightly build" \
-            build/*.tar.gz
+            --notes "Automated nightly build. Release assets include SHA256SUMS and GitHub artifact attestations." \
+            build/*.tar.gz \
+            build/SHA256SUMS
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

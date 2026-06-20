@@ -15,6 +15,7 @@ A starter template for Go projects with batteries included.
 - **Easy customization**: `init.sh` script to bootstrap your new project
 - **Automated updates**: Dependabot integration for dependency management
 - **Build metadata**: Binaries embed version, commit SHA, and build time
+- **Supply-chain hardening**: Published images and release binaries include provenance metadata
 
 ## Quick Start
 
@@ -36,6 +37,7 @@ Available commands:
 
 - `build` / `b` - Build binary for current platform
 - `build-all` - Build for all platforms (darwin/arm64, linux/arm64, linux/amd64)
+- `build-image` - Build the container image
 - `build-dir` - Create build directory
 - `clean` - Remove build directory
 - `fmt` - Format Go code
@@ -44,3 +46,41 @@ Available commands:
 - `lint` - Run golangci-lint
 - `run` / `r` - Build and run the binary
 - `vendor` - Tidy and vendor dependencies
+
+## Supply-chain hardening
+
+The container build path is intentionally small:
+
+- The Dockerfile uses pinned base images.
+- `.dockerignore` keeps local build output, Git data, and editor/env files out of the build context.
+- The `Publish Image` workflow pushes to GHCR with max-level provenance, an SBOM, and a keyless cosign signature.
+- The `Nightly` workflow publishes binary tarballs with `SHA256SUMS` and GitHub artifact attestations.
+
+Build an image locally:
+
+```bash
+just build-image
+```
+
+Use Podman without changing the justfile:
+
+```bash
+just container_engine=podman build-image
+```
+
+Publish from GitHub Actions by manually running the `Publish Image` workflow.
+
+Verify a published image:
+
+```bash
+cosign verify ghcr.io/<owner>/<repo>:latest \
+  --certificate-identity-regexp 'https://github.com/<owner>/<repo>/.github/workflows/publish-image.yaml@.*' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+Verify a downloaded release tarball:
+
+```bash
+sha256sum -c SHA256SUMS
+gh attestation verify go-start-linux-amd64.tar.gz --repo <owner>/<repo>
+```
