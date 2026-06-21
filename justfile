@@ -44,7 +44,7 @@ vendor:
     go mod vendor
 
 fmt:
-    go fmt ./...
+    golangci-lint fmt
 
 lint:
     golangci-lint run

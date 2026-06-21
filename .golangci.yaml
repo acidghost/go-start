@@ -18,4 +18,4 @@ linters:
       - std-error-handling
 formatters:
   enable:
-    - gofmt
+    - goimports
