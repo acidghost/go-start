@@ -6,10 +6,6 @@ on:
       - main
   pull_request:
 
-env:
-  # renovate: datasource=github-releases depName=jdx/mise
-  MISE_VERSION: 2026.10.14
-
 permissions:
   contents: read
 
@@ -25,7 +21,7 @@ jobs:
       - name: Setup mise
         uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
         with:
-          version: ${{ env.MISE_VERSION }}
+          version: 2026.10.14
 
       - name: Setup Go caching
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
