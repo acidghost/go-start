@@ -63,7 +63,7 @@ jobs:
           version: 2026.11.9
 
       - name: Setup Go caching
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           # Use mise-installed Go on PATH; do not specify a Go version here.
           cache-dependency-path: |
